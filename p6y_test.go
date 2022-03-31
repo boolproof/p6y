@@ -23,10 +23,11 @@ func TestNewDuration(t *testing.T) {
 		{"OK 1Y", "P1Y", false, 1, 0, 0, 0, 0, 0, 0},
 		{"OK 1M", "P1M", false, 0, 1, 0, 0, 0, 0, 0},
 		{"OK 1D", "P1D", false, 0, 0, 1, 0, 0, 0, 0},
-		{"OK 1W", "P1W", false, 0, 0, 0, 1, 0, 0, 0},
+		// {"OK 1W", "P1W", false, 0, 0, 0, 1, 0, 0, 0},
 		{"OK T1H", "PT1H", false, 0, 0, 0, 0, 1, 0, 0},
 		{"OK T1M", "PT1M", false, 0, 0, 0, 0, 0, 1, 0},
 		{"OK T1S", "PT1S", false, 0, 0, 0, 0, 0, 0, 1},
+		{"OK full", "P6Y1M2DT15H4M5S", false, 6, 1, 2, 0, 15, 4, 5},
 	}
 
 	for _, tc := range testCases {
@@ -37,7 +38,7 @@ func TestNewDuration(t *testing.T) {
 			}
 		} else {
 			if e != nil {
-				t.Errorf("[%s] error should be nil", tc.title)
+				t.Errorf("[%s] error should be nil, got %s", tc.title, e.Error())
 			}
 		}
 		if d.Years() != tc.years {

@@ -1,6 +1,11 @@
 package p6y
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type Duration struct {
 	years   int
@@ -44,5 +49,87 @@ func NewDuration(s string) (Duration, error) {
 		return d, e
 	}
 
+	cs := strings.Split(s, "T")
+	var dc, tc string
+	if len(cs) == 2 {
+		dc, tc = cs[0][1:], cs[1]
+	} else if len(cs) == 1 {
+		if cs[0][0] == 'P' {
+			dc = cs[0][1:]
+		} else {
+			tc = cs[0]
+		}
+	} else {
+		return d, e
+	}
+
+	var years, months, days, weeks, hours, minutes, seconds int
+
+	if dc != "" {
+		rest := dc
+		var err error
+		years, rest, err = x(rest, "Y")
+		if err != nil {
+			return d, err
+		}
+
+		months, rest, err = x(rest, "M")
+		if err != nil {
+			return d, err
+		}
+
+		days, rest, err = x(rest, "D")
+		if err != nil {
+			return d, err
+		}
+	}
+
+	if tc != "" {
+		rest := tc
+		var err error
+		hours, rest, err = x(rest, "H")
+		if err != nil {
+			return d, err
+		}
+
+		minutes, rest, err = x(rest, "M")
+		if err != nil {
+			return d, err
+		}
+
+		seconds, rest, err = x(rest, "S")
+		if err != nil {
+			return d, err
+		}
+	}
+
+	d.years = years
+	d.months = months
+	d.days = days
+	d.weeks = weeks
+	d.hours = hours
+	d.minutes = minutes
+	d.seconds = seconds
+
 	return d, nil
+}
+
+func x(s, t string) (int, string, error) {
+	var tval int
+
+	tpos := strings.Index(s, t)
+	if tpos == 0 {
+		return 0, "", errors.New(fmt.Sprintf("token '%s' without value", t))
+	} else if tpos > 0 {
+		tpart := s[0:tpos]
+		var err error
+		tval, err = strconv.Atoi(tpart)
+		if err != nil {
+			return 0, "", err
+		}
+
+		s = s[tpos+1:]
+	}
+
+	return tval, s, nil
 }
