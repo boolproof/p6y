@@ -49,12 +49,12 @@ func NewDuration(s string) (duration, error) {
 		return d, e
 	}
 
-	var rest string
+	var wc string
 	var err error
-	d.weeks, rest, err = extrct(s[1:], "W")
-	if err != nil || (err == nil && len(rest) > 0 && rest != s[1:]) {
+	d.weeks, wc, err = extrct(s[1:], "W")
+	if err != nil || (err == nil && len(wc) > 0 && wc != s[1:]) {
 		return tmp, e
-	} else if rest != s[1:] {
+	} else if wc != s[1:] {
 		return d, nil
 	}
 
@@ -72,45 +72,47 @@ func NewDuration(s string) (duration, error) {
 		return tmp, e
 	}
 
+	if dc == "" && tc == "" {
+		return tmp, e
+	}
+
 	if dc != "" {
-		rest = dc
 		var err error
-		d.years, rest, err = extrct(rest, "Y")
+		d.years, dc, err = extrct(dc, "Y")
 		if err != nil {
 			return tmp, err
 		}
 
-		d.months, rest, err = extrct(rest, "M")
+		d.months, dc, err = extrct(dc, "M")
 		if err != nil {
 			return tmp, err
 		}
 
-		d.days, rest, err = extrct(rest, "D")
+		d.days, dc, err = extrct(dc, "D")
 		if err != nil {
 			return tmp, err
 		}
 	}
 
 	if tc != "" {
-		rest = tc
 		var err error
-		d.hours, rest, err = extrct(rest, "H")
+		d.hours, tc, err = extrct(tc, "H")
 		if err != nil {
 			return tmp, err
 		}
 
-		d.minutes, rest, err = extrct(rest, "M")
+		d.minutes, tc, err = extrct(tc, "M")
 		if err != nil {
 			return tmp, err
 		}
 
-		d.seconds, rest, err = extrct(rest, "S")
+		d.seconds, tc, err = extrct(tc, "S")
 		if err != nil {
 			return tmp, err
 		}
 	}
 
-	if len(rest) > 0 {
+	if len(tc) > 0 || len(dc) > 0 {
 		return tmp, e
 	}
 
