@@ -45,16 +45,16 @@ func NewDuration(s string) (Duration, error) {
 	e := errors.New("failed to parse input string")
 	var d Duration
 
-	if len(s) < 0 || s[0] != 'P' {
+	if len(s) < 2 || s[0] != 'P' {
 		return d, e
 	}
 
 	var rest string
 
 	weeks, rest, err := x(s[1:], "W")
-	if err != nil || (weeks > 0 && len(rest) > 0) {
+	if err != nil || (err == nil && len(rest) > 0 && rest != s[1:]) {
 		return d, e
-	} else if weeks > 0 {
+	} else if rest != s[1:] {
 		d.weeks = weeks
 		return d, nil
 	}

@@ -19,9 +19,14 @@ type testCase struct {
 
 func TestNewDuration(t *testing.T) {
 	testCases := []testCase{
-		{"ERR No P", "1Y", true, 0, 0, 0, 0, 0, 0, 0},
-		{"ERR trash in before", "AP6Y1M2DT15H4M5S", true, 0, 0, 0, 0, 0, 0, 0},
-		{"ERR trash in after", "P6Y1M2DT15H4M5SA", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR no P", "1Y", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR only P", "P", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR only T", "T", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR only PT", "PT", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR trash before", "AP6Y1M2DT15H4M5S", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR trash after", "P6Y1M2DT15H4M5SA", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR trash before W", "0P1W", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR trash after W", "P1W0", true, 0, 0, 0, 0, 0, 0, 0},
 		{"ERR non int Y", "P.Y", true, 0, 0, 0, 0, 0, 0, 0},
 		{"ERR non int M", "P M", true, 0, 0, 0, 0, 0, 0, 0},
 		{"ERR non int D", "PaD", true, 0, 0, 0, 0, 0, 0, 0},
@@ -49,7 +54,21 @@ func TestNewDuration(t *testing.T) {
 		{"ERR double TH", "PT1H0H", true, 0, 0, 0, 0, 0, 0, 0},
 		{"ERR double TM", "PT0M2M", true, 0, 0, 0, 0, 0, 0, 0},
 		{"ERR double TS", "PT60S2S", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR invalid token order", "P1M1Y", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR invalid token order", "P1D1Y", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR invalid token order", "PT1S2M", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR invalid token order", "P1D1Y2M1H", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR invalid token order", "P1D1Y2H1M", true, 0, 0, 0, 0, 0, 0, 0},
+		{"ERR invalid token order", "P1Y1M2M1H", true, 0, 0, 0, 0, 0, 0, 0},
 
+		{"OK 0Y", "P0Y", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK 0M", "P0M", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK 0D", "P0D", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK 0W", "P0W", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK T0H", "PT0H", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK T0M", "PT0M", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK T0S", "PT0S", false, 0, 0, 0, 0, 0, 0, 0},
+		{"OK only 0", "P0Y0M0DT0H0M0S", false, 0, 0, 0, 0, 0, 0, 0},
 		{"OK 1Y", "P1Y", false, 1, 0, 0, 0, 0, 0, 0},
 		{"OK 1M", "P1M", false, 0, 1, 0, 0, 0, 0, 0},
 		{"OK 1D", "P1D", false, 0, 0, 1, 0, 0, 0, 0},
@@ -67,6 +86,8 @@ func TestNewDuration(t *testing.T) {
 		{"OK date only", "P6Y1M2D", false, 6, 1, 2, 0, 0, 0, 0},
 		{"OK time only", "PT15H4M5S", false, 0, 0, 0, 0, 15, 4, 5},
 		{"OK full", "P6Y1M2DT15H4M5S", false, 6, 1, 2, 0, 15, 4, 5},
+		{"OK partial", "P6YT15H", false, 6, 0, 0, 0, 15, 0, 0},
+		{"OK partial", "P2M1DT4M5S", false, 0, 2, 1, 0, 0, 4, 5},
 	}
 
 	for _, tc := range testCases {
@@ -77,7 +98,7 @@ func TestNewDuration(t *testing.T) {
 			}
 		} else {
 			if e != nil {
-				t.Errorf("[%s] error should be nil, got %s", tc.title, e.Error())
+				t.Errorf("[%s] error should be nil, got '%s'", tc.title, e.Error())
 			}
 		}
 		if d.Years() != tc.years {
