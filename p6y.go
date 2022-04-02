@@ -43,19 +43,18 @@ func (d duration) Seconds() int {
 
 func NewDuration(s string) (duration, error) {
 	e := errors.New("failed to parse input string")
-	var d duration
+	var d, tmp duration
 
 	if len(s) < 2 || s[0] != 'P' {
 		return d, e
 	}
 
 	var rest string
-
-	weeks, rest, err := extrct(s[1:], "W")
+	var err error
+	d.weeks, rest, err = extrct(s[1:], "W")
 	if err != nil || (err == nil && len(rest) > 0 && rest != s[1:]) {
-		return d, e
+		return tmp, e
 	} else if rest != s[1:] {
-		d.weeks = weeks
 		return d, nil
 	}
 
@@ -70,60 +69,50 @@ func NewDuration(s string) (duration, error) {
 			tc = cs[0]
 		}
 	} else {
-		return d, e
+		return tmp, e
 	}
-
-	var years, months, days, hours, minutes, seconds int
 
 	if dc != "" {
 		rest = dc
 		var err error
-		years, rest, err = extrct(rest, "Y")
+		d.years, rest, err = extrct(rest, "Y")
 		if err != nil {
-			return d, err
+			return tmp, err
 		}
 
-		months, rest, err = extrct(rest, "M")
+		d.months, rest, err = extrct(rest, "M")
 		if err != nil {
-			return d, err
+			return tmp, err
 		}
 
-		days, rest, err = extrct(rest, "D")
+		d.days, rest, err = extrct(rest, "D")
 		if err != nil {
-			return d, err
+			return tmp, err
 		}
 	}
 
 	if tc != "" {
 		rest = tc
 		var err error
-		hours, rest, err = extrct(rest, "H")
+		d.hours, rest, err = extrct(rest, "H")
 		if err != nil {
-			return d, err
+			return tmp, err
 		}
 
-		minutes, rest, err = extrct(rest, "M")
+		d.minutes, rest, err = extrct(rest, "M")
 		if err != nil {
-			return d, err
+			return tmp, err
 		}
 
-		seconds, rest, err = extrct(rest, "S")
+		d.seconds, rest, err = extrct(rest, "S")
 		if err != nil {
-			return d, err
+			return tmp, err
 		}
 	}
 
 	if len(rest) > 0 {
-		return d, e
+		return tmp, e
 	}
-
-	d.years = years
-	d.months = months
-	d.days = days
-	d.weeks = weeks
-	d.hours = hours
-	d.minutes = minutes
-	d.seconds = seconds
 
 	return d, nil
 }
