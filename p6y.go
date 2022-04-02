@@ -49,6 +49,16 @@ func NewDuration(s string) (Duration, error) {
 		return d, e
 	}
 
+	var rest string
+
+	weeks, rest, err := x(s[1:], "W")
+	if err != nil || (weeks > 0 && len(rest) > 0) {
+		return d, e
+	} else if weeks > 0 {
+		d.weeks = weeks
+		return d, nil
+	}
+
 	cs := strings.Split(s, "T")
 	var dc, tc string
 	if len(cs) == 2 {
@@ -63,10 +73,10 @@ func NewDuration(s string) (Duration, error) {
 		return d, e
 	}
 
-	var years, months, days, weeks, hours, minutes, seconds int
+	var years, months, days, hours, minutes, seconds int
 
 	if dc != "" {
-		rest := dc
+		rest = dc
 		var err error
 		years, rest, err = x(rest, "Y")
 		if err != nil {
@@ -85,7 +95,7 @@ func NewDuration(s string) (Duration, error) {
 	}
 
 	if tc != "" {
-		rest := tc
+		rest = tc
 		var err error
 		hours, rest, err = x(rest, "H")
 		if err != nil {
@@ -101,6 +111,10 @@ func NewDuration(s string) (Duration, error) {
 		if err != nil {
 			return d, err
 		}
+	}
+
+	if len(rest) > 0 {
+		return d, e
 	}
 
 	d.years = years
@@ -119,13 +133,13 @@ func x(s, t string) (int, string, error) {
 
 	tpos := strings.Index(s, t)
 	if tpos == 0 {
-		return 0, "", errors.New(fmt.Sprintf("token '%s' without value", t))
+		return 0, "", errors.New(fmt.Sprintf("'%s' token without value", t))
 	} else if tpos > 0 {
 		tpart := s[0:tpos]
 		var err error
 		tval, err = strconv.Atoi(tpart)
-		if err != nil {
-			return 0, "", err
+		if err != nil || tval < 0 {
+			return 0, "", errors.New(fmt.Sprintf("negative '%s' token value", t))
 		}
 
 		s = s[tpos+1:]
