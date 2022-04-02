@@ -42,10 +42,10 @@ func (d duration) Seconds() int {
 }
 
 func NewDuration(s string) (duration, error) {
-	e := errors.New("failed to parse input string")
 	var d, tmp duration
+	e := errors.New("failed to parse input string")
 
-	if len(s) < 2 || s[0] != 'P' {
+	if len(s) < 3 || s[0] != 'P' {
 		return d, e
 	}
 
