@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type Duration struct {
+type duration struct {
 	years   int
 	months  int
 	days    int
@@ -17,33 +17,33 @@ type Duration struct {
 	seconds int
 }
 
-func (d Duration) Years() int {
+func (d duration) Years() int {
 	return d.years
 }
 
-func (d Duration) Months() int {
+func (d duration) Months() int {
 	return d.months
 }
-func (d Duration) Days() int {
+func (d duration) Days() int {
 	return d.days
 }
-func (d Duration) Weeks() int {
+func (d duration) Weeks() int {
 	return d.weeks
 }
-func (d Duration) Hours() int {
+func (d duration) Hours() int {
 	return d.hours
 }
-func (d Duration) Minutes() int {
+func (d duration) Minutes() int {
 	return d.minutes
 }
 
-func (d Duration) Seconds() int {
+func (d duration) Seconds() int {
 	return d.seconds
 }
 
-func NewDuration(s string) (Duration, error) {
+func NewDuration(s string) (duration, error) {
 	e := errors.New("failed to parse input string")
-	var d Duration
+	var d duration
 
 	if len(s) < 2 || s[0] != 'P' {
 		return d, e
@@ -51,7 +51,7 @@ func NewDuration(s string) (Duration, error) {
 
 	var rest string
 
-	weeks, rest, err := x(s[1:], "W")
+	weeks, rest, err := extrct(s[1:], "W")
 	if err != nil || (err == nil && len(rest) > 0 && rest != s[1:]) {
 		return d, e
 	} else if rest != s[1:] {
@@ -78,17 +78,17 @@ func NewDuration(s string) (Duration, error) {
 	if dc != "" {
 		rest = dc
 		var err error
-		years, rest, err = x(rest, "Y")
+		years, rest, err = extrct(rest, "Y")
 		if err != nil {
 			return d, err
 		}
 
-		months, rest, err = x(rest, "M")
+		months, rest, err = extrct(rest, "M")
 		if err != nil {
 			return d, err
 		}
 
-		days, rest, err = x(rest, "D")
+		days, rest, err = extrct(rest, "D")
 		if err != nil {
 			return d, err
 		}
@@ -97,17 +97,17 @@ func NewDuration(s string) (Duration, error) {
 	if tc != "" {
 		rest = tc
 		var err error
-		hours, rest, err = x(rest, "H")
+		hours, rest, err = extrct(rest, "H")
 		if err != nil {
 			return d, err
 		}
 
-		minutes, rest, err = x(rest, "M")
+		minutes, rest, err = extrct(rest, "M")
 		if err != nil {
 			return d, err
 		}
 
-		seconds, rest, err = x(rest, "S")
+		seconds, rest, err = extrct(rest, "S")
 		if err != nil {
 			return d, err
 		}
@@ -128,7 +128,7 @@ func NewDuration(s string) (Duration, error) {
 	return d, nil
 }
 
-func x(s, t string) (int, string, error) {
+func extrct(s, t string) (int, string, error) {
 	var tval int
 
 	tpos := strings.Index(s, t)
